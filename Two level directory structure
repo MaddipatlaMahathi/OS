@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_USERS 10
+#define MAX_FILES 10
+#define NAME_LEN 50
+
+typedef struct { char fileName[NAME_LEN]; } File;
+typedef struct { char userName[NAME_LEN]; File files[MAX_FILES]; int fileCount; } UserDirectory;
+
+UserDirectory users[MAX_USERS];
+int userCount = 0;
+
+// Find user index
+int findUser(char *name) {
+    for (int i = 0; i < userCount; i++) if (strcmp(users[i].userName, name) == 0) return i;
+    return -1;
+}
+
+// Create user directory
+void createUser() {
+    if (userCount >= MAX_USERS) { printf("User limit reached.\n"); return; }
+    char name[NAME_LEN]; printf("Enter user name: "); scanf("%s", name);
+    if (findUser(name) != -1) { printf("User exists.\n"); return; }
+    strcpy(users[userCount++].userName, name);
+    printf("User '%s' created.\n", name);
+}
+
+// Add file to user directory
+void addFile() {
+    char user[NAME_LEN], file[NAME_LEN];
+    printf("Enter user name: "); scanf("%s", user);
+    int idx = findUser(user);
+    if (idx == -1) { printf("User not found.\n"); return; }
+    if (users[idx].fileCount >= MAX_FILES) { printf("File limit reached.\n"); return; }
+    printf("Enter file name: "); scanf("%s", file);
+    for (int i = 0; i < users[idx].fileCount; i++) 
+        if (strcmp(users[idx].files[i].fileName, file) == 0) { printf("File exists.\n"); return; }
+    strcpy(users[idx].files[users[idx].fileCount++].fileName, file);
+    printf("File '%s' added to '%s'.\n", file, user);
+}
+
+// Display user files
+void displayFiles() {
+    char user[NAME_LEN];
+    printf("Enter user name: "); scanf("%s", user);
+    int idx = findUser(user);
+    if (idx == -1) { printf("User not found.\n"); return; }
+    printf("Files in '%s':\n", user);
+    for (int i = 0; i < users[idx].fileCount; i++) printf(" - %s\n", users[idx].files[i].fileName);
+}
+
+// Main Menu
+int main() {
+    int choice;
+    while (1) {
+        printf("\n1. Create User  2. Add File  3. Display Files  4. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if (choice == 1) createUser();
+        else if (choice == 2) addFile();
+        else if (choice == 3) displayFiles();
+        else if (choice == 4) break;
+        else printf("Invalid choice.\n");
+    }
+    return 0;
+}
